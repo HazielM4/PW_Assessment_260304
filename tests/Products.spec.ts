@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import { LoginPage } from '../pages/LoginPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { generateRandomString } from '../utils/helper';
+import { Product } from '../utils/types';
 
 dotenv.config();
 
@@ -10,7 +11,12 @@ test('Scenario C - Create, filter and delete product', async ({ page }) => {
   const loginPage = new LoginPage(page);
   const dashboardPage = new DashboardPage(page);
 
-  const productName = `Automation Laptop ${generateRandomString('ID')}`;
+  const product: Product = {
+    name: `Automation Laptop ${generateRandomString('ID')}`,
+    sku: 'SKU-001',
+    price: '1500',
+    category: 'Electronics'
+  };
 
   // Login first
   await loginPage.navigate();
@@ -20,14 +26,14 @@ test('Scenario C - Create, filter and delete product', async ({ page }) => {
   await expect(page).toHaveURL(/index\.html/);
 
   // Create product
-  await dashboardPage.addProduct(productName, 'SKU-001', '1500', 'Electronics');
-  await expect(page.locator('.product-card', { hasText: productName })).toBeVisible();
+  await dashboardPage.addProduct(product);
+  await expect(await dashboardPage.isProductVisible(product.name)).toBe(true);
 
   // Filter by category
   await dashboardPage.filterByCategory('Electronics');
-  await expect(page.locator('.product-card', { hasText: productName })).toBeVisible();
+  await expect(await dashboardPage.isProductVisible(product.name)).toBe(true);
 
   // Delete product
-  await dashboardPage.deleteProduct(productName);
-  await expect(page.locator('.product-card', { hasText: productName })).not.toBeVisible();
+  await dashboardPage.deleteProduct(product.name);
+  await expect(await dashboardPage.isProductVisible(product.name)).toBe(false);
 });
