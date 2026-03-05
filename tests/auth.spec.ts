@@ -27,6 +27,10 @@ test('Scenario A - User registration', async ({ page }) => {
   await registerPage.clickRegister();
 
   await expect(page).toHaveURL(/login\.html/);
+  await loginPage.fillUsername(user.username);
+  await loginPage.fillPassword(user.password);
+  await loginPage.clickSignIn();
+  await expect(page).toHaveURL(/index\.html/);
 });
 
 test('Scenario B - Negative login', async ({ page }) => {
